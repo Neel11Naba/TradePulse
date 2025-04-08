@@ -1,0 +1,34 @@
+.App {
+  text-align: center;
+  background: #121212;
+  color: #fff;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+nav button {
+  background: #222;
+  border: none;
+  margin: 5px;
+  padding: 10px 20px;
+  color: #fff;
+  border-radius: 5px;
+}
+
+nav button.active {
+  background: #00ff99;
+  color: #000;
+}
+
+.chart-container {
+  margin: auto;
+  max-width: 800px;
+}
+
+iframe {
+  border: 0;
+}
