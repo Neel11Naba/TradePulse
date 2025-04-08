@@ -6,9 +6,7 @@ import {
   YAxis,
   Tooltip,
   Bar,
-  Line,
-  CartesianGrid,
-  ReferenceLine
+  CartesianGrid
 } from 'recharts';
 import './App.css';
 
@@ -27,7 +25,6 @@ const App = () => {
           return {
             name: date,
             price,
-            index
           };
         });
 
@@ -42,7 +39,12 @@ const App = () => {
           }
           return {
             ...item,
-            activity
+            fill:
+              activity === 'whaleBuy'
+                ? 'blue'
+                : activity === 'whaleSell'
+                ? 'black'
+                : '#00C49F',
           };
         });
 
@@ -57,17 +59,6 @@ const App = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const getBarColor = (activity) => {
-    switch (activity) {
-      case 'whaleBuy':
-        return 'blue';
-      case 'whaleSell':
-        return 'black';
-      default:
-        return '#00C49F';
-    }
-  };
-
   return (
     <div className="App" style={{ backgroundColor: '#111', color: '#fff', minHeight: '100vh', padding: '20px' }}>
       <h2>BTC Whale Activity Chart</h2>
@@ -75,29 +66,13 @@ const App = () => {
         <ComposedChart data={btcData}>
           <CartesianGrid stroke="#333" />
           <XAxis dataKey="name" hide />
-          <YAxis domain={['auto', 'auto']} stroke="#fff" />
+          <YAxis stroke="#fff" />
           <Tooltip
             contentStyle={{ backgroundColor: '#222', border: 'none' }}
             labelStyle={{ color: '#ccc' }}
             formatter={(value) => [`$${value.toFixed(2)}`, 'Price']}
           />
-          <Bar
-            dataKey="price"
-            barSize={4}
-            fill="#00C49F"
-            shape={(props) => {
-              const { x, y, width, height, payload } = props;
-              return (
-                <rect
-                  x={x}
-                  y={y}
-                  width={width}
-                  height={height}
-                  fill={getBarColor(payload.activity)}
-                />
-              );
-            }}
-          />
+          <Bar dataKey="price" barSize={4} />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
