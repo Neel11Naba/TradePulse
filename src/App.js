@@ -1,54 +1,48 @@
-import React, { useState } from "react";
-import TradingViewWidget from "./components/TradingViewWidget";
-import CustomChart from "./components/CustomChart";
+import React from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 import "./App.css";
 
-const App = () => {
-  const [symbol, setSymbol] = useState("NSE:NIFTY");
+const sampleBTCData = [
+  { time: "10:00", price: 65700 },
+  { time: "10:30", price: 65850 },
+  { time: "11:00", price: 65980 },
+  { time: "11:30", price: 65790 },
+  { time: "12:00", price: 66010 },
+];
 
-  const chartData = [
-    {
-      time: 1640995200,
-      open: 17200,
-      high: 17350,
-      low: 17150,
-      close: 17300,
-      fii: "buy",
-    },
-    {
-      time: 1641081600,
-      open: 17300,
-      high: 17400,
-      low: 17200,
-      close: 17250,
-      fii: "sell",
-    },
-    {
-      time: 1641168000,
-      open: 17250,
-      high: 17300,
-      low: 17100,
-      close: 17150,
-    },
-  ];
-
+function App() {
   return (
-    <div className="App" style={{ backgroundColor: "#121212", color: "white", padding: "20px" }}>
-      <h1>Trade Pulse</h1>
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "10px" }}>
-        <button onClick={() => setSymbol("NSE:NIFTY")}>Nifty 50</button>
-        <button onClick={() => setSymbol("BINANCE:BTCUSDT")}>BTC/USDT</button>
-        <button onClick={() => setSymbol("FOREXCOM:DJI")}>Dow Jones</button>
+    <div className="app">
+      <h1 className="header">Trade Pulse</h1>
+
+      {/* TradingView BTC/USDT Chart */}
+      <div className="chart-container">
+        <h2>BTC/USDT - Live TradingView Chart</h2>
+        <iframe
+          title="TradingView BTC Chart"
+          src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BINANCE:BTCUSDT&interval=30&theme=dark&style=1&locale=en&utm_source=&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE:BTCUSDT"
+          width="100%"
+          height="500"
+          frameBorder="0"
+          allowFullScreen
+        ></iframe>
       </div>
 
-      <div style={{ marginBottom: "30px" }}>
-        <TradingViewWidget symbol={symbol} />
+      {/* Custom BTC Price Chart */}
+      <div className="chart-container">
+        <h2>Custom BTC Price Trend</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={sampleBTCData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis domain={["auto", "auto"]} />
+            <Tooltip />
+            <Line type="monotone" dataKey="price" stroke="#00bcd4" strokeWidth={3} dot={{ r: 4 }} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
-
-      <h2 style={{ textAlign: "center" }}>Custom Chart with FII/DII Highlights</h2>
-      <CustomChart data={chartData} />
     </div>
   );
-};
+}
 
 export default App;
