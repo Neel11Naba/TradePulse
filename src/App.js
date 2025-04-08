@@ -1,76 +1,63 @@
 import React, { useState } from 'react';
-import './App.css';
 
-function App() {
-  const [activeTab, setActiveTab] = useState("nifty");
+const symbols = {
+  NIFTY: "NSE:NIFTY",
+  BTC: "BINANCE:BTCUSDT",
+  DOW: "DJI"
+};
 
-  const renderChart = () => {
-    if (activeTab === "nifty") {
-      return (
-        <div className="chart-container">
-          <iframe 
-            title="Nifty 50 Chart"
-            src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_0f7b9&symbol=NSE:NIFTY_50&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=Dark&style=1&timezone=Asia%2FKolkata" 
-            width="100%" 
-            height="400" 
-            frameBorder="0" 
-            allowTransparency="true" 
-            scrolling="no">
-          </iframe>
-        </div>
-      );
-    } else if (activeTab === "btc") {
-      return (
-        <div className="chart-container">
-          <iframe 
-            title="Bitcoin Chart"
-            src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_7ea2f&symbol=BINANCE:BTCUSDT&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=Dark&style=1&timezone=America%2FNew_York" 
-            width="100%" 
-            height="400" 
-            frameBorder="0" 
-            allowTransparency="true" 
-            scrolling="no">
-          </iframe>
-        </div>
-      );
-    } else if (activeTab === "dow") {
-      return (
-        <div className="chart-container">
-          <iframe 
-            title="Dow Jones Chart"
-            src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_fea3c&symbol=INDEXDJX:.DJI&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=Dark&style=1&timezone=America%2FNew_York" 
-            width="100%" 
-            height="400" 
-            frameBorder="0" 
-            allowTransparency="true" 
-            scrolling="no">
-          </iframe>
-        </div>
-      );
-    }
-  };
+const App = () => {
+  const [selectedSymbol, setSelectedSymbol] = useState(symbols.NIFTY);
+
+  const chartUrl = `https://s.tradingview.com/widgetembed/?frameElementId=tradingview_${selectedSymbol}&symbol=${selectedSymbol}&interval=60&theme=light&style=1&timezone=Asia/Kolkata&hide_top_toolbar=false&hide_side_toolbar=false&allow_symbol_change=false&save_image=false&studies=[]&toolbar_bg=F1F3F6&withdateranges=true&autosize=true`;
 
   return (
-    <div className="App">
-      <header>
-        <h1>Trade Pulse</h1>
-        <nav>
-          <button className={activeTab==="nifty" ? "active" : ""} onClick={()=> setActiveTab("nifty")}>
-            Nifty 50
-          </button>
-          <button className={activeTab==="btc" ? "active" : ""} onClick={()=> setActiveTab("btc")}>
-            BTC/USDT
-          </button>
-          <button className={activeTab==="dow" ? "active" : ""} onClick={()=> setActiveTab("dow")}>
-            Dow Jones
-          </button>
-        </nav>
+    <div style={{ fontFamily: "Arial, sans-serif", background: "#f4f4f4", minHeight: "100vh", padding: "10px" }}>
+      <header style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px", flexWrap: "wrap" }}>
+        <button
+          onClick={() => setSelectedSymbol(symbols.NIFTY)}
+          style={buttonStyle(selectedSymbol === symbols.NIFTY)}
+        >
+          Nifty 50
+        </button>
+        <button
+          onClick={() => setSelectedSymbol(symbols.BTC)}
+          style={buttonStyle(selectedSymbol === symbols.BTC)}
+        >
+          BTC/USDT
+        </button>
+        <button
+          onClick={() => setSelectedSymbol(symbols.DOW)}
+          style={buttonStyle(selectedSymbol === symbols.DOW)}
+        >
+          Dow Jones
+        </button>
       </header>
-      <main>
-        {renderChart()}
-      </main>
+
+      <div style={{ position: "relative", height: "75vh", width: "100%", boxShadow: "0 0 10px rgba(0,0,0,0.1)" }}>
+        <iframe
+          title="TradingView Chart"
+          src={chartUrl}
+          frameBorder="0"
+          allowTransparency="true"
+          scrolling="no"
+          allowFullScreen
+          style={{ width: "100%", height: "100%", borderRadius: "10px" }}
+        ></iframe>
+      </div>
     </div>
   );
-}
+};
+
+const buttonStyle = (isActive) => ({
+  padding: "10px 20px",
+  backgroundColor: isActive ? "#0d6efd" : "#ffffff",
+  color: isActive ? "#ffffff" : "#000000",
+  border: "1px solid #ccc",
+  borderRadius: "5px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  transition: "0.3s"
+});
 
 export default App;
