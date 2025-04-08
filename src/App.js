@@ -1,48 +1,107 @@
-import React from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
-import "./App.css";
+import React, { useEffect, useState } from 'react';
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Bar,
+  Line,
+  CartesianGrid,
+  ReferenceLine
+} from 'recharts';
+import './App.css';
 
-const sampleBTCData = [
-  { time: "10:00", price: 65700 },
-  { time: "10:30", price: 65850 },
-  { time: "11:00", price: 65980 },
-  { time: "11:30", price: 65790 },
-  { time: "12:00", price: 66010 },
-];
+const App = () => {
+  const [btcData, setBtcData] = useState([]);
 
-function App() {
+  useEffect(() => {
+    const fetchBTC = async () => {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=minute');
+        const data = await res.json();
+        const prices = data.prices;
+        const chartData = prices.map((entry, index) => {
+          const [timestamp, price] = entry;
+          const date = new Date(timestamp).toLocaleTimeString();
+          return {
+            name: date,
+            price,
+            index
+          };
+        });
+
+        const withWhaleColor = chartData.map((item, index, arr) => {
+          const prev = arr[index - 1];
+          let activity = 'normal';
+          if (prev) {
+            const change = item.price - prev.price;
+            if (Math.abs(change) > 100) {
+              activity = change > 0 ? 'whaleBuy' : 'whaleSell';
+            }
+          }
+          return {
+            ...item,
+            activity
+          };
+        });
+
+        setBtcData(withWhaleColor);
+      } catch (err) {
+        console.error('BTC Fetch Error:', err);
+      }
+    };
+
+    fetchBTC();
+    const interval = setInterval(fetchBTC, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getBarColor = (activity) => {
+    switch (activity) {
+      case 'whaleBuy':
+        return 'blue';
+      case 'whaleSell':
+        return 'black';
+      default:
+        return '#00C49F';
+    }
+  };
+
   return (
-    <div className="app">
-      <h1 className="header">Trade Pulse</h1>
-
-      {/* TradingView BTC/USDT Chart */}
-      <div className="chart-container">
-        <h2>BTC/USDT - Live TradingView Chart</h2>
-        <iframe
-          title="TradingView BTC Chart"
-          src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_btc&symbol=BINANCE:BTCUSDT&interval=30&theme=dark&style=1&locale=en&utm_source=&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE:BTCUSDT"
-          width="100%"
-          height="500"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
-      </div>
-
-      {/* Custom BTC Price Chart */}
-      <div className="chart-container">
-        <h2>Custom BTC Price Trend</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={sampleBTCData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis domain={["auto", "auto"]} />
-            <Tooltip />
-            <Line type="monotone" dataKey="price" stroke="#00bcd4" strokeWidth={3} dot={{ r: 4 }} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+    <div className="App" style={{ backgroundColor: '#111', color: '#fff', minHeight: '100vh', padding: '20px' }}>
+      <h2>BTC Whale Activity Chart</h2>
+      <ResponsiveContainer width="100%" height={400}>
+        <ComposedChart data={btcData}>
+          <CartesianGrid stroke="#333" />
+          <XAxis dataKey="name" hide />
+          <YAxis domain={['auto', 'auto']} stroke="#fff" />
+          <Tooltip
+            contentStyle={{ backgroundColor: '#222', border: 'none' }}
+            labelStyle={{ color: '#ccc' }}
+            formatter={(value) => [`$${value.toFixed(2)}`, 'Price']}
+          />
+          <Bar
+            dataKey="price"
+            barSize={4}
+            fill="#00C49F"
+            shape={(props) => {
+              const { x, y, width, height, payload } = props;
+              return (
+                <rect
+                  x={x}
+                  y={y}
+                  width={width}
+                  height={height}
+                  fill={getBarColor(payload.activity)}
+                />
+              );
+            }}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
     </div>
   );
-}
+};
 
 export default App;
